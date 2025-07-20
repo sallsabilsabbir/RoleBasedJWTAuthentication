@@ -61,8 +61,20 @@ WSGI_APPLICATION = 'mainProject.wsgi.application'
 # Database settings (using SQLite for now)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+
+        'ENGINE': 'mssql',
+        'NAME': 'JWT_Test',
+		'USER': 'sa',
+		'PASSWORD': 'dellvostro',
+		'HOST': 'VOSTRO3910\\SQLEXPRESS',
+		'PORT': '',
+        
+		'OPTIONS': {
+			'driver': 'ODBC Driver 17 for SQL Server',
+			'trust_server_certificate': 'yes',
+		},
     }
 }
 
@@ -127,3 +139,12 @@ LOGGING = {
         'level': 'INFO',
     },
 }
+
+
+
+
+
+
+
+
+
