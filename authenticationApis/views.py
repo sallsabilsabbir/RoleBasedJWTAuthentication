@@ -19,29 +19,74 @@ def register_user(request):
     username = request.data.get('username')
     email = request.data.get('email')
     password = request.data.get('password')
+    role = request.data.get('role')  # Optional, only used if with_role=true
 
     if not username or not email or not password:
-        return Response({'error': 'Please provide username, email, and password'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Please provide username, email, and password'},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
+    # Detect if role-based registration is requested
+    with_role = request.query_params.get('with_role', 'false').lower() == 'true'
+
     user = User.objects.create_user(username=username, email=email, password=password)
 
-    # By default, new user is basic user (is_staff and is_superuser = False)
-    user.is_staff = True
+    # Role defaults
+    is_superadmin = False
+    is_admin = False
+    is_user = True  # Default role
+    user.is_staff = False
     user.is_superuser = False
+
+    if with_role:
+        if not role:
+            return Response({'error': 'Role is required when with_role=true'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        if role.lower() == 'superadmin':
+            is_superadmin = True
+            is_admin = False
+            is_user = False
+            user.is_staff = True
+            user.is_superuser = True
+        elif role.lower() == 'admin':
+            is_superadmin = False
+            is_admin = True
+            is_user = False
+            user.is_staff = True
+            user.is_superuser = False
+        elif role.lower() == 'user':
+            is_superadmin = False
+            is_admin = False
+            is_user = True
+            user.is_staff = True
+            user.is_superuser = False
+        else:
+            return Response({'error': 'Invalid role. Choose superadmin, admin, or user'},
+                            status=status.HTTP_400_BAD_REQUEST)
+
     user.save()
 
+    # Assign to CustomUser model
+    custom_user = CustomUser.objects.get(user=user)
+    custom_user.is_superadmin = is_superadmin
+    custom_user.is_admin = is_admin
+    custom_user.is_user = is_user
+    custom_user.save()
+
     # refresh = RefreshToken.for_user(user)
-    # custom_user = CustomUser.objects.get(user=user)
-    # role = 'superadmin' if custom_user.is_superadmin else 'admin' if custom_user.is_admin else 'user'
+
     return Response({
+        # 'username': user.username,
+        # 'email': user.email,
+        # 'role': 'superadmin' if is_superadmin else 'admin' if is_admin else 'user',
         # 'refresh': str(refresh),
         # 'access': str(refresh.access_token),
         'msg': 'User registered successfully',
-        # 'role': role
     }, status=status.HTTP_201_CREATED)
+
 
 # Login a user
 @api_view(['POST'])
