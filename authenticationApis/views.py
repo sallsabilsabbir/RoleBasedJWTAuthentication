@@ -19,7 +19,7 @@ def register_user(request):
     username = request.data.get('username')
     email = request.data.get('email')
     password = request.data.get('password')
-    role = request.data.get('role')  # Optional, only used if with_role=true
+    role = request.data.get('role')  # Optional, only used if with_role=devtr
 
     if not username or not email or not password:
         return Response({'error': 'Please provide username, email, and password'},
@@ -29,7 +29,7 @@ def register_user(request):
         return Response({'error': 'Username already exists'}, status=status.HTTP_400_BAD_REQUEST)
 
     # Detect if role-based registration is requested
-    with_role = request.query_params.get('with_role', 'false').lower() == 'true'
+    with_role = request.query_params.get('with_role', 'false').lower() == 'devtr'
 
     user = User.objects.create_user(username=username, email=email, password=password)
 
@@ -42,7 +42,7 @@ def register_user(request):
 
     if with_role:
         if not role:
-            return Response({'error': 'Role is required when with_role=true'},
+            return Response({'error': 'Role is required when with_role=devtr'},
                             status=status.HTTP_400_BAD_REQUEST)
 
         if role.lower() == 'superadmin':
@@ -202,4 +202,22 @@ def update_user_role(request):
         'msg': f'User {user_to_update.username} role updated to {role}',
         'role': role
     }, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
