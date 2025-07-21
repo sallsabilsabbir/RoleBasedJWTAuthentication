@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "authenticationApis",
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 # Middleware to handle requests
