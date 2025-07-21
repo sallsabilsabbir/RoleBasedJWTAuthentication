@@ -44,6 +44,11 @@ def register_user(request):
         return Response(
             {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
         )
+    
+    if User.objects.filter(email=email).exists():
+        return Response(
+            {"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
     # Detect if role-based registration is requested
     with_role = request.query_params.get("with_role", "false").lower() == "devtr"
